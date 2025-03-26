@@ -6,6 +6,7 @@ import {
   TransactionInstruction,
   sendAndConfirmTransaction,
   SystemProgram,
+  LAMPORTS_PER_SOL
 } from '@solana/web3.js';
 import {
   TOKEN_PROGRAM_ID,
@@ -15,6 +16,9 @@ import {
   getOrCreateAssociatedTokenAccount,
   getMint,
   getAccount,
+  createMint,
+  mintTo,
+  transfer,
 } from '@solana/spl-token';
 
 /**
@@ -25,188 +29,200 @@ import {
  * rewards, and checking token balances.
  */
 
-// Harmony Token mint authority
-let mintAuthority: Keypair;
+export class HarmonyTokenProgram {
+  private connection: Connection;
+  private mintKeypair: Keypair | null = null;
+  private mintAuthority: Keypair | null = null;
 
-// HAI token mint
-let tokenMint: PublicKey;
+  constructor(connection: Connection) {
+    this.connection = connection;
+  }
 
-/**
- * Initialize the HAI token mint
- * @param connection Solana connection
- * @param payer Fee payer for the transaction
- * @returns Token mint public key
- */
-export async function initializeTokenMint(
-  connection: Connection,
-  payer: Keypair
-): Promise<PublicKey> {
-  // Generate a new mint keypair
-  const tokenMintKeypair = Keypair.generate();
-  tokenMint = tokenMintKeypair.publicKey;
-  
-  // Generate mint authority
-  mintAuthority = Keypair.generate();
-  
-  // Minimum balance for rent exemption
-  const lamports = await connection.getMinimumBalanceForRentExemption(82);
-  
-  // Create transaction for token mint account
-  const transaction = new Transaction().add(
-    SystemProgram.createAccount({
-      fromPubkey: payer.publicKey,
-      newAccountPubkey: tokenMint,
-      space: 82,
-      lamports,
-      programId: TOKEN_PROGRAM_ID,
-    }),
-    // Initialize mint instruction
-    createInitializeMintInstruction(
-      tokenMint,
-      6, // 6 decimals
-      mintAuthority.publicKey,
-      null, // Freeze authority (null = no freeze authority)
-      TOKEN_PROGRAM_ID
-    )
-  );
-  
-  // Send and confirm transaction
-  await sendAndConfirmTransaction(connection, transaction, [
-    payer,
-    tokenMintKeypair,
-  ]);
-  
-  console.log(`Token Mint created: ${tokenMint.toString()}`);
-  
-  return tokenMint;
-}
+  /**
+   * Initialize a new token mint for the HarmonyAI platform
+   * @returns The public key of the created mint
+   */
+  async initializeTokenMint(): Promise<PublicKey> {
+    try {
+      // Generate a new mint keypair
+      this.mintKeypair = Keypair.generate();
+      this.mintAuthority = Keypair.generate();
 
-/**
- * Mint HAI tokens to a recipient
- * @param connection Solana connection
- * @param payer Fee payer for the transaction
- * @param recipient Recipient wallet address
- * @param amount Amount of tokens to mint (in base units)
- * @returns Transaction signature
- */
-export async function mintTokens(
-  connection: Connection,
-  payer: Keypair,
-  recipient: PublicKey,
-  amount: number
-): Promise<string> {
-  // Get or create an associated token account for the recipient
-  const recipientTokenAccount = await getOrCreateAssociatedTokenAccount(
-    connection,
-    payer,
-    tokenMint,
-    recipient
-  );
-  
-  // Create mint instruction
-  const transaction = new Transaction().add(
-    createMintToInstruction(
-      tokenMint,
-      recipientTokenAccount.address,
-      mintAuthority.publicKey,
-      amount * Math.pow(10, 6) // Convert to base units with 6 decimals
-    )
-  );
-  
-  // Send and confirm transaction
-  const signature = await sendAndConfirmTransaction(
-    connection,
-    transaction,
-    [payer, mintAuthority]
-  );
-  
-  console.log(`Minted ${amount} tokens to ${recipient.toString()}`);
-  console.log(`Transaction signature: ${signature}`);
-  
-  return signature;
-}
+      // Request airdrop for mint authority to pay for transactions
+      const airdropSignature = await this.connection.requestAirdrop(
+        this.mintAuthority.publicKey,
+        2 * LAMPORTS_PER_SOL
+      );
+      await this.connection.confirmTransaction(airdropSignature);
 
-/**
- * Send HAI tokens as survey reward
- * @param connection Solana connection
- * @param sender Sender keypair
- * @param recipient Recipient wallet address
- * @param amount Amount of tokens to send (in base units)
- * @returns Transaction signature
- */
-export async function sendReward(
-  connection: Connection,
-  sender: Keypair,
-  recipient: PublicKey,
-  amount: number
-): Promise<string> {
-  // Get or create token accounts
-  const senderTokenAccount = await getOrCreateAssociatedTokenAccount(
-    connection,
-    sender,
-    tokenMint,
-    sender.publicKey
-  );
-  
-  const recipientTokenAccount = await getOrCreateAssociatedTokenAccount(
-    connection,
-    sender,
-    tokenMint,
-    recipient
-  );
-  
-  // Create transfer instruction
-  const transaction = new Transaction().add(
-    createTransferInstruction(
-      senderTokenAccount.address,
-      recipientTokenAccount.address,
-      sender.publicKey,
-      amount * Math.pow(10, 6) // Convert to base units with 6 decimals
-    )
-  );
-  
-  // Send and confirm transaction
-  const signature = await sendAndConfirmTransaction(
-    connection,
-    transaction,
-    [sender]
-  );
-  
-  console.log(`Sent ${amount} tokens to ${recipient.toString()}`);
-  console.log(`Transaction signature: ${signature}`);
-  
-  return signature;
-}
+      // Create the mint account
+      const lamports = await this.connection.getMinimumBalanceForRentExemption(82);
+      const createMintAccountIx = SystemProgram.createAccount({
+        fromPubkey: this.mintAuthority.publicKey,
+        newAccountPubkey: this.mintKeypair.publicKey,
+        lamports,
+        space: 82,
+        programId: TOKEN_PROGRAM_ID,
+      });
 
-/**
- * Get HAI token balance
- * @param connection Solana connection
- * @param owner Wallet address to check
- * @returns Token balance
- */
-export async function getTokenBalance(
-  connection: Connection,
-  owner: PublicKey
-): Promise<number> {
-  try {
-    // Find the associated token account
-    const tokenAccount = await getOrCreateAssociatedTokenAccount(
-      connection,
-      Keypair.generate(), // Temporary keypair just for query
-      tokenMint,
-      owner,
-      true // Allow owner off curve
-    );
-    
-    // Get account info
-    const accountInfo = await getAccount(connection, tokenAccount.address);
-    
-    // Convert from base units to token amount
-    const balance = Number(accountInfo.amount) / Math.pow(10, 6);
-    
-    return balance;
-  } catch (error) {
-    console.error('Error getting token balance:', error);
-    return 0;
+      // Initialize the mint
+      const initMintIx = createInitializeMintInstruction(
+        this.mintKeypair.publicKey,
+        9, // 9 decimals
+        this.mintAuthority.publicKey,
+        null, // Freeze authority (null = no freeze authority)
+        TOKEN_PROGRAM_ID
+      );
+
+      const transaction = new Transaction()
+        .add(createMintAccountIx)
+        .add(initMintIx);
+
+      await sendAndConfirmTransaction(
+        this.connection,
+        transaction,
+        [this.mintAuthority, this.mintKeypair]
+      );
+
+      return this.mintKeypair.publicKey;
+    } catch (error) {
+      console.error('Error initializing token mint:', error);
+      throw new Error('Failed to initialize token mint');
+    }
+  }
+
+  /**
+   * Mint tokens to a specified recipient
+   * @param recipientAddress The public key of the recipient
+   * @param amount The amount of tokens to mint
+   */
+  async mintTokens(recipientAddress: PublicKey, amount: number): Promise<string> {
+    if (!this.mintKeypair || !this.mintAuthority) {
+      throw new Error('Token mint not initialized');
+    }
+
+    try {
+      // Request airdrop for recipient to pay for token account creation
+      const airdropSignature = await this.connection.requestAirdrop(
+        recipientAddress,
+        LAMPORTS_PER_SOL
+      );
+      await this.connection.confirmTransaction(airdropSignature);
+
+      // Get or create the recipient's token account
+      const recipientTokenAccount = await getOrCreateAssociatedTokenAccount(
+        this.connection,
+        this.mintAuthority,
+        this.mintKeypair.publicKey,
+        recipientAddress
+      );
+
+      // Mint tokens to the recipient
+      await mintTo(
+        this.connection,
+        this.mintAuthority,
+        this.mintKeypair.publicKey,
+        recipientTokenAccount.address,
+        this.mintAuthority,
+        amount * Math.pow(10, 9) // Convert to smallest unit
+      );
+
+      return recipientTokenAccount.address.toBase58();
+    } catch (error) {
+      console.error('Error minting tokens:', error);
+      throw new Error('Failed to mint tokens');
+    }
+  }
+
+  /**
+   * Send tokens as a reward for completing a survey
+   * @param fromAddress The public key of the sender
+   * @param toAddress The public key of the recipient
+   * @param amount The amount of tokens to send
+   * @param senderKeypair The keypair of the sender for signing the transaction
+   */
+  async sendReward(
+    fromAddress: PublicKey,
+    toAddress: PublicKey,
+    amount: number,
+    senderKeypair: Keypair
+  ): Promise<string> {
+    if (!this.mintKeypair) {
+      throw new Error('Token mint not initialized');
+    }
+
+    try {
+      // Request airdrop for recipient to pay for token account creation
+      const airdropSignature = await this.connection.requestAirdrop(
+        toAddress,
+        LAMPORTS_PER_SOL
+      );
+      await this.connection.confirmTransaction(airdropSignature);
+
+      // Get the sender's token account
+      const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
+        this.connection,
+        senderKeypair,
+        this.mintKeypair.publicKey,
+        fromAddress
+      );
+
+      // Get or create the recipient's token account
+      const toTokenAccount = await getOrCreateAssociatedTokenAccount(
+        this.connection,
+        senderKeypair,
+        this.mintKeypair.publicKey,
+        toAddress
+      );
+
+      // Transfer tokens
+      await transfer(
+        this.connection,
+        senderKeypair,
+        fromTokenAccount.address,
+        toTokenAccount.address,
+        fromAddress,
+        amount * Math.pow(10, 9) // Convert to smallest unit
+      );
+
+      return toTokenAccount.address.toBase58();
+    } catch (error) {
+      console.error('Error sending reward:', error);
+      throw new Error('Failed to send reward');
+    }
+  }
+
+  /**
+   * Get the token balance for a specified wallet address
+   * @param walletAddress The public key of the wallet
+   * @returns The token balance
+   */
+  async getTokenBalance(walletAddress: PublicKey): Promise<number> {
+    if (!this.mintKeypair) {
+      throw new Error('Token mint not initialized');
+    }
+
+    try {
+      const tokenAccount = await getOrCreateAssociatedTokenAccount(
+        this.connection,
+        this.mintAuthority!,
+        this.mintKeypair.publicKey,
+        walletAddress
+      );
+
+      const accountInfo = await getAccount(this.connection, tokenAccount.address);
+      return Number(accountInfo.amount) / Math.pow(10, 9); // Convert from smallest unit
+    } catch (error) {
+      console.error('Error getting token balance:', error);
+      throw new Error('Failed to get token balance');
+    }
+  }
+
+  /**
+   * Get the mint public key
+   * @returns The public key of the token mint
+   */
+  getMintPublicKey(): PublicKey | null {
+    return this.mintKeypair?.publicKey || null;
   }
 } 

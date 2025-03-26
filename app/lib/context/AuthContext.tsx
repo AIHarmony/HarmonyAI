@@ -1,12 +1,16 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { api } from '../services/api';
 
 // Authentication interface definitions
-interface User {
+export interface User {
   id: string;
   username: string;
   email: string;
+  walletAddress: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 interface AuthCredentials {
@@ -38,7 +42,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-        // Here you can check localStorage or send a request to the server to verify user status
         const storedUser = localStorage.getItem('user');
         
         if (storedUser) {
@@ -60,22 +63,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setError(null);
     
     try {
-      // Simulate login API call
-      // In a real application, this would be a call to a backend API
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await api.login(credentials.email, credentials.password);
       
-      // Simulate successful response
-      const userData: User = {
-        id: '123456',
-        username: 'user123',
-        email: credentials.email
-      };
-      
-      // Store user information
-      localStorage.setItem('user', JSON.stringify(userData));
-      setUser(userData);
-      
-      return true;
+      if (response.success && response.data) {
+        setUser(response.data.user);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        return true;
+      } else {
+        setError(response.error || 'Login failed');
+        return false;
+      }
     } catch (err) {
       setError('Login failed. Please check your credentials.');
       return false;
@@ -90,27 +87,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setError(null);
     
     try {
-      // Validate username exists
       if (!credentials.username) {
         setError('Username is required');
         return false;
       }
       
-      // Simulate register API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await api.register(
+        credentials.username,
+        credentials.email,
+        credentials.password
+      );
       
-      // Simulate successful response
-      const userData: User = {
-        id: '123456',
-        username: credentials.username,
-        email: credentials.email
-      };
-      
-      // Store user information
-      localStorage.setItem('user', JSON.stringify(userData));
-      setUser(userData);
-      
-      return true;
+      if (response.success && response.data) {
+        setUser(response.data.user);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        return true;
+      } else {
+        setError(response.error || 'Registration failed');
+        return false;
+      }
     } catch (err) {
       setError('Registration failed. Please try again later.');
       return false;
@@ -121,6 +116,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Logout function
   const logout = () => {
+    api.logout();
     localStorage.removeItem('user');
     setUser(null);
   };
