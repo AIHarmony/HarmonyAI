@@ -5,8 +5,7 @@
   <p>
     <a href="https://www.harmon-ai.xyz/" target="_blank">Website</a> •
     <a href="https://x.com/_Harmony_AI" target="_blank">Twitter</a> •
-    <a href="https://github.com/AIHarmony/HarmonyAI" target="_blank">GitHub</a> •
-    <a href="https://discord.gg/harmonyai" target="_blank">Discord</a>
+    <a href="https://github.com/AIHarmony/HarmonyAI" target="_blank">GitHub</a>
   </p>
 </div>
 
@@ -360,11 +359,9 @@ A: Yes, HarmonyAI employs advanced encryption, optional anonymization, and block
 
 ## Contact Us
 
-- Website: [harmon-ai.xyz](https://www.harmon-ai.xyz/)
-- Twitter: [@_Harmony_AI](https://x.com/_Harmony_AI)
-- Discord: [HarmonyAI Community](https://discord.gg/harmonyai)
-- GitHub: [AIHarmony/HarmonyAI](https://github.com/AIHarmony/HarmonyAI)
-- Email: support@harmon-ai.xyz
+- **Email**: contact@harmon-ai.xyz
+- **Twitter**: [@_Harmony_AI](https://x.com/_Harmony_AI)
+- **GitHub**: [AIHarmony/HarmonyAI](https://github.com/AIHarmony/HarmonyAI)
 
 ## License
 
