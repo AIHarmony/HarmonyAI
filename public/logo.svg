@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <!-- Background -->
+  <defs>
+    <!-- Background gradient -->
+    <radialGradient id="bgGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#13092E" />
+      <stop offset="90%" stop-color="#0A0F1C" />
+    </radialGradient>
+    <!-- Main gradient -->
+    <linearGradient id="mainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06B6D4" />
+      <stop offset="50%" stop-color="#8B5CF6" />
+      <stop offset="100%" stop-color="#EC4899" />
+    </linearGradient>
+    <!-- Node gradients -->
+    <radialGradient id="nodeGradient1" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#93C5FD" />
+      <stop offset="100%" stop-color="#3B82F6" />
+    </radialGradient>
+    <radialGradient id="nodeGradient2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#C4B5FD" />
+      <stop offset="100%" stop-color="#8B5CF6" />
+    </radialGradient>
+    <radialGradient id="nodeGradient3" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#F9A8D4" />
+      <stop offset="100%" stop-color="#EC4899" />
+    </radialGradient>
+    <radialGradient id="nodeGradient4" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#A7F3D0" />
+      <stop offset="100%" stop-color="#10B981" />
+    </radialGradient>
+    <!-- Glow effect -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur" />
+      <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 8 -3" result="glow" />
+      <feBlend in="SourceGraphic" in2="glow" mode="screen" />
+    </filter>
+    <!-- Enhanced glow effect - for center square -->
+    <filter id="enhancedGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur" />
+      <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 10 -4" result="glow" />
+      <feBlend in="SourceGraphic" in2="glow" mode="screen" />
+    </filter>
+    <!-- Soft glow -->
+    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="blur" />
+      <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 5 -2" result="glow" />
+      <feBlend in="SourceGraphic" in2="glow" mode="screen" />
+    </filter>
+  </defs>
+  <!-- Circular background - Twitter avatars display as circles -->
+  <circle cx="200" cy="200" r="200" fill="url(#bgGradient)" />
+  <!-- Background tech elements - faded -->
+  <g opacity="0.08">
+    <!-- Circuit board grid - simplified for avatar -->
+    <path d="M80,80 L150,80 L150,120 L250,120 L250,80 L320,80"
+          fill="none" stroke="#3B82F6" stroke-width="1.5" />
+    <path d="M80,320 L120,320 L120,250 L200,250 L200,280 L280,280 L280,320 L320,320"
+          fill="none" stroke="#8B5CF6" stroke-width="1.5" />
+    <!-- Circuit nodes -->
+    <circle cx="150" cy="80" r="3" fill="#3B82F6" />
+    <circle cx="150" cy="120" r="3" fill="#3B82F6" />
+    <circle cx="250" cy="120" r="3" fill="#3B82F6" />
+    <circle cx="250" cy="80" r="3" fill="#3B82F6" />
+    <circle cx="120" cy="320" r="3" fill="#8B5CF6" />
+    <circle cx="120" cy="250" r="3" fill="#8B5CF6" />
+    <circle cx="200" cy="250" r="3" fill="#8B5CF6" />
+    <circle cx="200" cy="280" r="3" fill="#8B5CF6" />
+    <circle cx="280" cy="280" r="3" fill="#8B5CF6" />
+    <circle cx="280" cy="320" r="3" fill="#8B5CF6" />
+  </g>
+  <!-- Decorative outer rings - suitable for avatar -->
+  <g opacity="0.15" filter="url(#softGlow)">
+    <circle cx="200" cy="200" r="155" fill="none" stroke="#8B5CF6" stroke-width="1.5" stroke-dasharray="3,15" />
+    <circle cx="200" cy="200" r="130" fill="none" stroke="#EC4899" stroke-width="1.5" stroke-dasharray="3,18" />
+  </g>
+  <!-- Neural network connections - position adjusted for enlarged dots -->
+  <g filter="url(#softGlow)">
+    <!-- Connections from central unit to external nodes - adjusted positions -->
+    <line x1="200" y1="200" x2="130" y2="130" stroke="#6366F1" stroke-width="3" opacity="0.7" />
+    <line x1="200" y1="200" x2="270" y2="130" stroke="#8B5CF6" stroke-width="3" opacity="0.7" />
+    <line x1="200" y1="200" x2="270" y2="270" stroke="#C026D3" stroke-width="3" opacity="0.7" />
+    <line x1="200" y1="200" x2="130" y2="270" stroke="#EC4899" stroke-width="3" opacity="0.7" />
+    <!-- Neural network nodes - smaller dots -->
+    <circle cx="130" cy="130" r="7" fill="url(#nodeGradient1)" filter="url(#softGlow)" />
+    <circle cx="270" cy="130" r="7" fill="url(#nodeGradient2)" filter="url(#softGlow)" />
+    <circle cx="270" cy="270" r="7" fill="url(#nodeGradient3)" filter="url(#softGlow)" />
+    <circle cx="130" cy="270" r="7" fill="url(#nodeGradient4)" filter="url(#softGlow)" />
+  </g>
+  <!-- Core logo - optimized for avatar, ensuring center square is in front and clean -->
+  <g transform="translate(200, 200)">
+    <!-- Connection lines -->
+    <line x1="-88" y1="0" x2="-70" y2="0" stroke="url(#mainGradient)" stroke-width="5" />
+    <line x1="70" y1="0" x2="88" y2="0" stroke="url(#mainGradient)" stroke-width="5" />
+    <line x1="0" y1="-88" x2="0" y2="-70" stroke="url(#mainGradient)" stroke-width="5" />
+    <line x1="0" y1="70" x2="0" y2="88" stroke="url(#mainGradient)" stroke-width="5" />
+    <!-- Four main connection points -->
+    <circle cx="-88" cy="0" r="9" fill="url(#nodeGradient1)" filter="url(#glow)" />
+    <circle cx="88" cy="0" r="9" fill="url(#nodeGradient2)" filter="url(#glow)" />
+    <circle cx="0" cy="-88" r="9" fill="url(#nodeGradient3)" filter="url(#glow)" />
+    <circle cx="0" cy="88" r="9" fill="url(#nodeGradient4)" filter="url(#glow)" />
+    <!-- Outer frame -->
+    <rect x="-70" y="-70" width="140" height="140" fill="none" stroke="url(#mainGradient)" stroke-width="5" rx="18" ry="18" filter="url(#glow)" />
+    <!-- Core - internal lines removed for a cleaner look -->
+    <rect x="-40" y="-40" width="80" height="80" fill="url(#mainGradient)" rx="12" ry="12" filter="url(#enhancedGlow)" />
+  </g>
+  <!-- Background sparkle elements -->
+  <g>
+    <!-- Glowing particles -->
+    <circle cx="120" cy="95" r="1.2" fill="#FFFFFF" opacity="0.9" filter="url(#softGlow)" />
+    <circle cx="280" cy="105" r="1.5" fill="#FFFFFF" opacity="0.8" filter="url(#softGlow)" />
+    <circle cx="95" cy="210" r="1" fill="#FFFFFF" opacity="0.7" filter="url(#softGlow)" />
+    <circle cx="305" cy="190" r="1.3" fill="#FFFFFF" opacity="0.9" filter="url(#softGlow)" />
+    <circle cx="170" cy="70" r="1.1" fill="#FFFFFF" opacity="0.8" filter="url(#softGlow)" />
+    <circle cx="230" cy="70" r="1" fill="#FFFFFF" opacity="0.7" filter="url(#softGlow)" />
+    <circle cx="330" cy="150" r="1.2" fill="#FFFFFF" opacity="0.8" filter="url(#softGlow)" />
+    <circle cx="70" cy="150" r="1.2" fill="#FFFFFF" opacity="0.8" filter="url(#softGlow)" />
+    <circle cx="70" cy="250" r="1" fill="#FFFFFF" opacity="0.8" filter="url(#softGlow)" />
+    <circle cx="330" cy="250" r="1" fill="#FFFFFF" opacity="0.8" filter="url(#softGlow)" />
+    <circle cx="170" cy="330" r="1.1" fill="#FFFFFF" opacity="0.8" filter="url(#softGlow)" />
+    <circle cx="230" cy="330" r="1.1" fill="#FFFFFF" opacity="0.8" filter="url(#softGlow)" />
+    <!-- Larger star points -->
+    <g filter="url(#glow)">
+      <circle cx="110" cy="180" r="1.7" fill="#FFFFFF" opacity="0.9" />
+      <circle cx="290" cy="180" r="1.7" fill="#FFFFFF" opacity="0.9" />
+      <circle cx="200" cy="110" r="1.7" fill="#FFFFFF" opacity="0.9" />
+      <circle cx="200" cy="290" r="1.7" fill="#FFFFFF" opacity="0.9" />
+      <!-- Star ray effects -->
+      <path d="M110,177 L110,183" stroke="#FFFFFF" stroke-width="0.5" opacity="0.7" />
+      <path d="M107,180 L113,180" stroke="#FFFFFF" stroke-width="0.5" opacity="0.7" />
+      <path d="M290,177 L290,183" stroke="#FFFFFF" stroke-width="0.5" opacity="0.7" />
+      <path d="M287,180 L293,180" stroke="#FFFFFF" stroke-width="0.5" opacity="0.7" />
+      <path d="M200,107 L200,113" stroke="#FFFFFF" stroke-width="0.5" opacity="0.7" />
+      <path d="M197,110 L203,110" stroke="#FFFFFF" stroke-width="0.5" opacity="0.7" />
+      <path d="M200,287 L200,293" stroke="#FFFFFF" stroke-width="0.5" opacity="0.7" />
+      <path d="M197,290 L203,290" stroke="#FFFFFF" stroke-width="0.5" opacity="0.7" />
+    </g>
+    <!-- Colored light dots -->
+    <circle cx="150" cy="150" r="1.2" fill="#38BDF8" opacity="0.8" filter="url(#softGlow)" />
+    <circle cx="250" cy="150" r="1.2" fill="#A855F7" opacity="0.8" filter="url(#softGlow)" />
+    <circle cx="250" cy="250" r="1.2" fill="#EC4899" opacity="0.8" filter="url(#softGlow)" />
+    <circle cx="150" cy="250" r="1.2" fill="#14B8A6" opacity="0.8" filter="url(#softGlow)" />
+  </g>
+</svg>
